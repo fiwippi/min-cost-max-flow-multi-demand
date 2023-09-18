@@ -1,4 +1,6 @@
 import unittest
+from random import randint
+from time import perf_counter
 
 from flow import *
 
@@ -111,6 +113,30 @@ class TestFlowsMoved(unittest.TestCase):
         s, cost = match_flows(sources, sinks, costs, filename=name)
         self.assertEqual(total_moved(s), AmountMoved(6))
         self.assertEqual(cost, AvgCost(8.25))
+
+    def test_long(self):
+        nsrc = 1000
+        nsnk = 1000
+
+        sources: Nodes = {}
+        for i in range(nsrc):
+            sources[Node(f"{i}-src")] = Capacity(randint(1,100))
+
+        sinks: Nodes = {}
+        for i in range(nsnk):
+            sinks[Node(f"{i}-snk")] = Capacity(randint(1,100))
+
+        costs: Edges = {}
+        for i in range (nsrc):
+            for j in range (nsnk):
+                src = Node(f"{i}-src")
+                sink = Node(f"{j}-snk")
+                costs[Edge((src, sink))] = Cost(randint(1, 3000))
+
+        start = perf_counter()
+        sol, cost = match_flows(sources, sinks, costs)
+        print(f"test_long: {perf_counter()-start}")
+
 
 if __name__ == '__main__':
     unittest.main()
